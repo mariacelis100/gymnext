@@ -89,7 +89,7 @@ export const HeroBanner = () => {
               fontSize: { xs: '1.8rem', sm: '2.5rem', md: '3rem' },
             }}
           >
-            ¡EL AMBIENTE OLD SCHOOL
+            ¡EL AMBIENTE OLD SCHOOL!
           </Typography>
           
           <Typography
@@ -102,7 +102,7 @@ export const HeroBanner = () => {
               fontSize: { xs: '1.5rem', sm: '2rem', md: '2.5rem' },
             }}
           >
-            QUE TE IMPULSA A SUPERAR TUS LÍMITES!
+            ¡TU MEJOR VERSIÓN EMPIEZA AQUÍ!
           </Typography>
         </Box>
       </Container>
