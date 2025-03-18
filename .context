@@ -1,0 +1,158 @@
+# Project Context: GymNext
+This file provides essential context about the GymNext project for AI assistance.
+
+## Project Overview
+GymNext is a modern gym management application built with Next.js, focusing on providing a comprehensive platform for gym members, trainers, and administrators. The application supports multiple languages (English/Spanish) and implements a role-based access system.
+
+## Technical Stack
+- Frontend Framework: Next.js 15.2.2
+- UI Library: Material UI
+- State Management: TanStack Query
+- Backend Services: Supabase
+- Language: TypeScript
+- Testing: Unit Tests for utils and server actions
+- Authentication: Phone number + Identity number (Cédula)
+- Internationalization: English/Spanish support
+
+## Project Structure
+/src
+  /features           # Vertical slice architecture
+    /{feature-name}   # e.g., auth, profile, home
+      /containers     # Page-level components
+      /components     # Feature-specific components
+      /actions        # Next.js server actions
+      /tests         # Unit tests
+      /utils         # Feature-specific utilities
+  /core              # Cross-cutting concerns and shared utilities
+  /public
+    /avatars         # User avatars
+      /male
+      /female
+    /exercises       # Exercise videos
+
+## File Naming Convention
+- All files must be lowercase
+- Words separated by hyphens
+- Must include folder type as suffix
+- Example: `tab-bar.component.tsx`, `auth-validation.utils.ts`
+
+## Architecture Decisions
+1. Vertical Slice Architecture
+2. SOLID Principles implementation
+3. Server Actions for backend operations
+4. Supabase as backend service
+5. Material UI for consistent design
+6. TanStack Query for data fetching
+7. Unit testing for utils and server actions
+
+## Role-Based Access
+1. Super Admin - Full access
+2. Admin - Gym management
+3. Trainer - Customer management
+4. Client - Basic user features
+
+## Theme Configuration
+Original Theme:
+- Background: Deep Navy Blue (#0A1A3F)
+- Text: White (#FFFFFF)
+- Accent/Cards: Bright Cyan Blue (#00B7FF)
+
+Dark Mode Theme:
+- Background: Rich Black (#0A0C10)
+- Text: Light Silver/Gray (#E8E9EA)
+- Accent/Cards: Dark Steel Blue (#2A3544)
+
+## Key Features
+1. Customer Management
+   - QR-based check-in system
+   - Streak tracking
+   - Exercise assignments
+   - Billing management
+
+2. Trainer Features
+   - Customer exercise management
+   - Attendance tracking
+   - Exercise assignment system
+
+3. Admin Features
+   - Customer registration
+   - Billing management
+   - News management
+   - Status management
+
+## Data Models
+### Customer Status Types
+- Active Member
+- Suspended
+- Overdue Payment
+- Banned
+- Inactive Member
+- Trial Membership
+- Cancelled Membership
+
+## Testing Strategy
+- Unit tests required for:
+  - Utility functions
+  - Server actions
+  - Business logic
+- Visual components excluded from testing requirement
+
+## Security Considerations
+1. Phone number validation (04xx-xxxxxxx)
+2. Identity number validation (max 7 digits)
+3. Role-based access control
+4. Persistent authentication
+5. Secure payment handling
+
+## Performance Goals
+1. Optimize for mobile devices
+2. Efficient image/video delivery
+3. Responsive UI
+4. Offline capabilities where possible
+
+## Development Guidelines
+1. Strict typing with TypeScript
+2. Server actions for backend operations
+3. Material UI components only
+4. TanStack Query for data management
+5. Bilingual support implementation
+6. Comprehensive error handling
+
+## Coding Standards
+1. Use TypeScript for type safety
+2. Follow ESLint configuration for code style
+3. Implement responsive design using Tailwind classes
+4. Use functional components with React hooks
+5. Follow Next.js best practices for routing and data fetching
+
+## Development Workflow
+1. Use `npm run dev` for development with Turbopack
+2. Follow Git workflow for version control
+3. Ensure all code passes linting (`npm run lint`)
+4. Build with `npm run build` for production
+
+## Branch Naming Convention
+- All branches must be created from `develop`
+- Branch names must be in English and lowercase
+- Words must be separated by underscores
+- Format: `[username]/[type]/[task_name]`
+  - username: Developer's name
+  - type: Either 'feature' or 'fix'
+  - task_name: Brief description of the task
+- Example: `hernando/feature/create_login_form`
+- Example: `john/fix/password_validation`
+
+## Important Notes
+- The project uses the latest React features
+- TypeScript strict mode is enabled
+- TailwindCSS is configured with PostCSS
+- ESLint is set up with Next.js recommended configs
+
+## Business Context
+GymNext is designed to [Add specific business context and requirements here]
+
+## Accessibility
+1. Follow WCAG 2.1 guidelines
+2. Implement proper ARIA attributes
+3. Ensure keyboard navigation
+4. Maintain proper color contrast 

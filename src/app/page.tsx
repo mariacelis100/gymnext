@@ -27,6 +27,12 @@ const DynamicFeatureCards = dynamic(
   { ssr: false }
 );
 
+// Botones flotantes de redes sociales
+const DynamicSocialButtons = dynamic(
+  () => import('@/features/home/components/social-floating-buttons.component').then(mod => ({ default: mod.SocialFloatingButtons })),
+  { ssr: false }
+);
+
 export default function Home() {
   return (
     <ThemeProvider>
@@ -47,6 +53,9 @@ export default function Home() {
         <Box sx={{ py: 2, px: { xs: 2, md: 4 } }}>
           <DynamicFeatureCards />
         </Box>
+        
+        {/* Botones flotantes de redes sociales */}
+        <DynamicSocialButtons />
       </Box>
     </ThemeProvider>
   );
