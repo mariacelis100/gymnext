@@ -1,6 +1,6 @@
 'use client';
 
-import { AppBar, Toolbar, IconButton, Button, Drawer, List, ListItem, useMediaQuery, Box, Typography, Avatar } from '@mui/material';
+import { AppBar, Toolbar, IconButton, Button, Drawer, List, ListItem, useMediaQuery, Box, Typography, Avatar, Tooltip } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
@@ -53,6 +53,10 @@ export const NavBar = () => {
       altText: 'Ícono de máquinas'
     },
   ];
+
+  // Número de WhatsApp para contacto directo
+  const whatsappNumber = '584122731575'; // Número de WhatsApp de COSMOS GYM
+  const whatsappUrl = `https://wa.me/${whatsappNumber}?text=Hola%2C%20me%20gustar%C3%ADa%20obtener%20informaci%C3%B3n%20sobre%20planes%20de%20entrenamiento`;
 
   return (
     <>
@@ -135,6 +139,26 @@ export const NavBar = () => {
                     {item.text}
                   </Button>
                 ))}
+                
+                {/* Botón de WhatsApp para contacto directo */}
+                <Tooltip title="Contáctanos ahora">
+                  <Button 
+                    variant="contained"
+                    startIcon={<WhatsAppIcon />}
+                    sx={{
+                      backgroundColor: '#25D366',
+                      '&:hover': {
+                        backgroundColor: '#128C7E',
+                      },
+                      fontWeight: 600,
+                      borderRadius: '20px',
+                      px: 2
+                    }}
+                    onClick={() => window.open(whatsappUrl, '_blank')}
+                  >
+                    WhatsApp
+                  </Button>
+                </Tooltip>
                 
                 {/* Botón de cambio de tema para desktop */}
                 <IconButton 
