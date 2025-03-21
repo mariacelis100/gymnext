@@ -99,7 +99,7 @@ Dark Mode Theme:
 
 ## Security Considerations
 1. Phone number validation (04xx-xxxxxxx)
-2. Identity number validation (max 7 digits)
+2. Identity number validation (max 8 digits)
 3. Role-based access control
 4. Persistent authentication
 5. Secure payment handling
@@ -156,3 +156,6 @@ GymNext is designed to [Add specific business context and requirements here]
 2. Implement proper ARIA attributes
 3. Ensure keyboard navigation
 4. Maintain proper color contrast 
+
+// env.local: these are var NEXT_PUBLIC_SUPABASE_URL=https://tu-proyecto.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIs...tu-clave-aquí 

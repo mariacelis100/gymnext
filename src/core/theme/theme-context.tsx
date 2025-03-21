@@ -3,8 +3,7 @@
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { ThemeProvider as MUIThemeProvider } from '@mui/material/styles';
 import { lightTheme, darkTheme } from './theme.config';
-import { CacheProvider } from '@emotion/react';
-import createCache from '@emotion/cache';
+import RegisterEmotion from './register-emotion';
 
 type ThemeContextType = {
   isDarkMode: boolean;
@@ -12,11 +11,6 @@ type ThemeContextType = {
 };
 
 const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
-
-// Creamos un cache de emociones para el lado del cliente
-const createEmotionCache = () => {
-  return createCache({ key: 'css', prepend: true });
-};
 
 export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -26,28 +20,40 @@ export const ThemeProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     // Esto solo se ejecuta en el cliente
     setIsMounted(true);
+    
+    // Verificar si hay una preferencia guardada
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme === 'dark') {
+      setIsDarkMode(true);
+    }
   }, []);
 
   const toggleTheme = () => {
-    setIsDarkMode(!isDarkMode);
+    const newThemeState = !isDarkMode;
+    setIsDarkMode(newThemeState);
+    localStorage.setItem('theme', newThemeState ? 'dark' : 'light');
   };
 
-  // Creamos el cache del cliente solo en el lado del cliente
-  const emotionCache = createEmotionCache();
-
-  // Durante el SSR o el primer renderizado del cliente, no renderizamos nada
-  // excepto una estructura básica para prevenir problemas de hidratación
+  // Durante el SSR o el primer renderizado del cliente, devolvemos un tema por defecto
   if (!isMounted) {
-    return <div style={{ visibility: 'hidden' }}>{children}</div>;
+    return (
+      <ThemeContext.Provider value={{ isDarkMode: false, toggleTheme }}>
+        <RegisterEmotion>
+          <MUIThemeProvider theme={lightTheme}>
+            {children}
+          </MUIThemeProvider>
+        </RegisterEmotion>
+      </ThemeContext.Provider>
+    );
   }
 
   return (
     <ThemeContext.Provider value={{ isDarkMode, toggleTheme }}>
-      <CacheProvider value={emotionCache}>
+      <RegisterEmotion>
         <MUIThemeProvider theme={isDarkMode ? darkTheme : lightTheme}>
           {children}
         </MUIThemeProvider>
-      </CacheProvider>
+      </RegisterEmotion>
     </ThemeContext.Provider>
   );
 };

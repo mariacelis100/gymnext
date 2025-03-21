@@ -9,10 +9,12 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import WhatsAppIcon from '@mui/icons-material/WhatsApp';
 import FitnessCenterIcon from '@mui/icons-material/FitnessCenter';
 import SportsGymnasticsIcon from '@mui/icons-material/SportsGymnastics';
+import LoginIcon from '@mui/icons-material/Login';
 import { useState } from 'react';
 import { useTheme as useMuiTheme } from '@mui/material/styles';
 import { useTheme } from '@/core/theme/theme-context';
 import Image from 'next/image';
+import Link from 'next/link';
 
 export const NavBar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -157,6 +159,29 @@ export const NavBar = () => {
                     onClick={() => window.open(whatsappUrl, '_blank')}
                   >
                     WhatsApp
+                  </Button>
+                </Tooltip>
+                
+                {/* Botón de inicio de sesión/registro */}
+                <Tooltip title="Accede a tu cuenta">
+                  <Button 
+                    component={Link}
+                    href="/login"
+                    variant="outlined"
+                    startIcon={<LoginIcon />}
+                    sx={{
+                      color: 'white',
+                      borderColor: 'white',
+                      '&:hover': {
+                        borderColor: '#00B7FF',
+                        backgroundColor: 'rgba(0, 183, 255, 0.1)',
+                      },
+                      fontWeight: 600,
+                      borderRadius: '20px',
+                      px: 2
+                    }}
+                  >
+                    Iniciar sesión
                   </Button>
                 </Tooltip>
                 
@@ -318,6 +343,29 @@ export const NavBar = () => {
               </Button>
             </ListItem>
           </List>
+          
+          {/* Botón de inicio de sesión para móvil */}
+          <Box sx={{ px: 2, mb: 2 }}>
+            <Button
+              component={Link}
+              href="/login"
+              variant="outlined"
+              fullWidth
+              startIcon={<LoginIcon />}
+              sx={{
+                color: 'white',
+                borderColor: 'white',
+                '&:hover': {
+                  borderColor: '#00B7FF',
+                  backgroundColor: 'rgba(0, 183, 255, 0.1)',
+                },
+                py: 1,
+                fontWeight: 600
+              }}
+            >
+              Iniciar sesión / Registrarse
+            </Button>
+          </Box>
         </Box>
       </Drawer>
     </>
