@@ -38,94 +38,70 @@ export class SupabaseAuthRepository implements AuthRepository {
     identityNumber: string;
   }): Promise<{ user: User | null }> {
     try {
-      // Validar teléfono y cédula
+      console.log('Iniciando inicio de sesión con teléfono:', phone);
+      
+      if (!this.supabase) {
+        console.error('Error: Cliente de Supabase no inicializado');
+        throw new Error('Error de conexión con el servidor. Por favor, intenta de nuevo más tarde.');
+      }
+      
+      // Validar datos
       this.validatePhone(phone);
       this.validateIdentityNumber(identityNumber);
       
       // Formatear el teléfono para asegurar formato correcto
       const formattedPhone = this.formatPhone(phone);
-      console.log('Teléfono formateado para login:', formattedPhone);
       
-      console.log(`Intentando iniciar sesión con teléfono: ${formattedPhone} y cédula: ${identityNumber}`);
+      // Usar la función SQL login_with_phone para evitar uso de email
+      console.log('Usando función SQL login_with_phone para iniciar sesión sin email');
       
-      // Buscar usuario en la tabla members
-      const { data: memberData, error: memberError } = await this.supabase
-        .from('members')
-        .select('id, phone, identity_number, identity_type, name, last_name, role_name, status')
-        .eq('phone', formattedPhone)
-        .eq('identity_number', identityNumber)
-        .maybeSingle();
-        
-      if (memberError) {
-        console.error('Error al buscar usuario en members:', memberError);
-        throw new Error('Error al verificar credenciales. Por favor, intenta de nuevo.');
-      }
-      
-      if (!memberData) {
-        console.error(`No se encontró ningún usuario con teléfono: ${formattedPhone} y cédula: ${identityNumber}`);
-        throw new Error('Teléfono o cédula incorrectos. Por favor, verifica tus datos.');
-      }
-      
-      console.log('Usuario encontrado en members:', memberData.id);
-      
-      // Verificar que el usuario exista también en auth.users
-      // pero solo para fines de integridad referencial
-      try {
-        const { data: validationData, error: validationError } = await this.supabase.rpc('create_session_for_phone', {
+      const { data: loginData, error: loginError } = await this.supabase.rpc(
+        'login_with_phone',
+        {
           p_phone: formattedPhone,
           p_identity_number: identityNumber
-        });
+        }
+      );
+      
+      if (loginError) {
+        console.error('Error en la función login_with_phone:', loginError);
         
-        if (validationError) {
-          console.error('Error en validación:', validationError);
-          // Si hay un error específico sobre usuario no existente en auth.users, manejarlo
-          if (validationError.message?.includes('auth.users')) {
-            throw new Error('La cuenta existe pero no está configurada correctamente. Por favor, contacta a soporte.');
-          }
-          throw new Error(`Error de autenticación: ${validationError.message}`);
+        if (loginError.message?.includes('no encontrado')) {
+          throw new Error('Usuario no encontrado. Verifica el número de teléfono y la cédula.');
         }
         
-        console.log('Validación exitosa, ID de usuario:', validationData.user_id);
-        
-        // Crear una sesión personalizada directamente en el almacenamiento local
-        // sin usar signInWithPassword ni auth.sign
-        this.storeUserSession(memberData);
-        
-      } catch (validationError: any) {
-        console.error('Error en validación del usuario:', validationError);
-        
-        // Si el error no es sobre usuario en auth.users, propagarlo
-        if (!validationError.message?.includes('auth.users')) {
-          throw validationError;
-        }
-        
-        // De lo contrario, aún podemos intentar crear una sesión manual
-        this.storeUserSession(memberData);
+        throw new Error(`Error al iniciar sesión: ${loginError.message}. Por favor, intenta de nuevo.`);
       }
       
-      // Construir un objeto de usuario manual con toda la información necesaria
-      const manualUser = {
-        id: memberData.id,
+      if (!loginData || !loginData.user_id) {
+        throw new Error('No se recibió información del usuario. Por favor, intenta de nuevo.');
+      }
+      
+      console.log('Inicio de sesión exitoso con ID:', loginData.user_id);
+      
+      // Guardar manualmente la sesión en localStorage
+      this.storeCustomSession(loginData);
+      
+      // Construir objeto de usuario para retornar
+      const user = {
+        id: loginData.user_id,
         phone: formattedPhone,
         user_metadata: {
           phone: formattedPhone,
-          identityNumber: memberData.identity_number,
-          identityType: memberData.identity_type || 'V',
-          name: memberData.name,
-          lastName: memberData.last_name,
-          role: memberData.role_name,
-          status: memberData.status
+          identityNumber: identityNumber,
+          identityType: loginData.identity_type || 'V',
+          name: loginData.name,
+          lastName: loginData.last_name,
+          role: loginData.role,
+          status: loginData.status
         },
         app_metadata: {
           provider: 'phone',
-          role: memberData.role_name
+          role: loginData.role
         }
       };
       
-      return { 
-        user: manualUser as any
-      };
-      
+      return { user: user as any };
     } catch (error: any) {
       console.error('Error en signIn:', error);
       throw error;
@@ -258,27 +234,8 @@ export class SupabaseAuthRepository implements AuthRepository {
       const formattedPhone = this.formatPhone(userData.phone);
       console.log('Teléfono formateado para registro:', formattedPhone);
       
-      // 1. Verificar si ya existe un usuario con ese teléfono o cédula
-      const { data: existingMember, error: checkError } = await this.supabase
-        .from('members')
-        .select('id, phone, identity_number')
-        .or(`phone.eq.${formattedPhone},identity_number.eq.${userData.identityNumber}`)
-        .maybeSingle();
-        
-      if (checkError) {
-        console.error('Error al verificar usuario existente:', checkError);
-        // Continuar, asumiendo que no existe
-      } else if (existingMember) {
-        if (existingMember.phone === formattedPhone) {
-          throw new Error('Ya existe un usuario con este número de teléfono.');
-        } else if (existingMember.identity_number === userData.identityNumber) {
-          throw new Error('Ya existe un usuario con este número de identidad.');
-        }
-        throw new Error('Ya existe un usuario con estos datos.');
-      }
-      
-      // 2. Llamar a la función create_user_with_phone para crear el registro
-      console.log('Usando función create_user_with_phone para crear usuario con integridad referencial');
+      // USAR LA FUNCIÓN SQL PERSONALIZADA para evitar el uso de email
+      console.log('Usando función SQL create_user_with_phone para registro sin email');
       
       const { data: registrationData, error: registrationError } = await this.supabase.rpc(
         'create_user_with_phone',
@@ -320,23 +277,8 @@ export class SupabaseAuthRepository implements AuthRepository {
       
       console.log('Usuario registrado correctamente con ID:', registrationData.user_id);
       
-      // 3. Obtener datos del usuario recién creado
-      const { data: memberData, error: memberError } = await this.supabase
-        .from('members')
-        .select('*')
-        .eq('id', registrationData.user_id)
-        .single();
-        
-      if (memberError) {
-        console.error('Error al obtener datos del miembro recién creado:', memberError);
-        // No lanzar error, podemos continuar con los datos que tenemos
-      }
-      
-      // 4. Crear sesión local y construir objeto de usuario
-      if (memberData) {
-        // Guardar sesión
-        this.storeUserSession(memberData);
-      }
+      // Guardar manualmente la sesión en localStorage
+      this.storeCustomSession(registrationData);
       
       // Construir objeto de usuario para retornar
       const user = {
@@ -562,6 +504,42 @@ export class SupabaseAuthRepository implements AuthRepository {
     } catch (error) {
       console.error('Error al almacenar sesión:', error);
       // No lanzar error, es solo para mantener persistencia
+    }
+  }
+
+  // Método para almacenar una sesión personalizada
+  private storeCustomSession(sessionData: any) {
+    // Crear un objeto de sesión manual
+    const session = {
+      access_token: sessionData.session_token || `manual_${Date.now()}_${Math.random().toString(36).substring(2)}`,
+      refresh_token: `refresh_${Date.now()}_${Math.random().toString(36).substring(2)}`,
+      user: {
+        id: sessionData.user_id,
+        phone: sessionData.phone,
+        user_metadata: {
+          phone: sessionData.phone,
+          identityNumber: sessionData.identity_number,
+          identityType: sessionData.identity_type || 'V',
+          name: sessionData.name,
+          lastName: sessionData.last_name,
+          role: sessionData.role || 'client',
+          status: sessionData.status || 'active'
+        },
+        app_metadata: {
+          provider: 'phone',
+          role: sessionData.role || 'client'
+        }
+      }
+    };
+    
+    // Guardar la sesión en localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('supabase.auth.token', JSON.stringify({
+        currentSession: session
+      }));
+      
+      // También guardar en formato personalizado
+      localStorage.setItem('gymnext.user.session', JSON.stringify(sessionData));
     }
   }
 }

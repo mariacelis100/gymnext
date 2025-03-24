@@ -164,3 +164,45 @@ This project is licensed under the MIT License - see the LICENSE file for detail
 - Material UI for the component library
 - TanStack Query for data management
 - Supabase for backend services
+
+## Solución a problemas de autenticación
+
+Si encuentras errores del tipo:
+```
+Error en la función create_user_with_phone: {}
+Código de error: "42883"
+Mensaje de error: "function auth.sign(json, text) does not exist"
+```
+
+Necesitas ejecutar los siguientes scripts SQL en tu base de datos Supabase en este orden:
+
+1. Primero, ejecuta `sql/fix_missing_auth_sign.sql` para implementar la función `auth.sign` faltante.
+2. Luego, ejecuta `sql/fix_jwt_settings.sql` para configurar las variables JWT necesarias.
+3. Alternativamente, puedes ejecutar `sql/fix_registration_without_auth_sign.sql` si prefieres modificar las funciones para que no dependan de `auth.sign`.
+
+Para ejecutar los scripts:
+1. Abre el editor SQL en tu proyecto de Supabase
+2. Copia y pega el contenido del archivo SQL
+3. Ejecuta el script
+4. Repite para cada script en el orden mencionado
+
+## Desarrollo
+
+```bash
+npm run dev
+# o
+yarn dev
+```
+
+Abre [http://localhost:3000](http://localhost:3000) en tu navegador para ver el resultado.
+
+## Autenticación
+
+El sistema utiliza autenticación basada en número de teléfono y cédula, sin necesidad de correo electrónico.
+
+## Estructura de roles
+
+- **Cliente**: Usuario básico que puede ver sus ejercicios y asistencia
+- **Entrenador**: Puede gestionar clientes y asignar ejercicios
+- **Administrador**: Control completo del sistema
+- **Super Administrador**: Acceso total a todas las funciones

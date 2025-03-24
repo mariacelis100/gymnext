@@ -1,10 +1,8 @@
--- Script para corregir el sistema de autenticación y registro
--- Esto modifica el enfoque para cumplir con la restricción de clave foránea members_id_fkey
+-- Script para modificar las funciones de registro para eliminar la dependencia de auth.sign
+-- Esto es una solución alternativa si no es posible implementar auth.sign
 
--- Parte 1: Modificar la función de creación de sesión para asegurar que el usuario existe en auth.users
--- -----------------------------------------------------------------------------------------
-DROP FUNCTION IF EXISTS public.create_user_with_phone(text, text, text, text, text, date, boolean, boolean);
-DROP FUNCTION IF EXISTS public.create_user_with_phone_with_role(text, text, text, text, text, text, text, boolean, boolean);
+-- Modificar la función create_user_with_phone para que no use auth.sign
+DROP FUNCTION IF EXISTS public.create_user_with_phone(text, text, text, text, text, text, boolean, boolean);
 
 CREATE OR REPLACE FUNCTION public.create_user_with_phone(
   p_phone TEXT,
@@ -18,8 +16,6 @@ CREATE OR REPLACE FUNCTION public.create_user_with_phone(
 ) RETURNS JSONB AS $$
 DECLARE
   v_user_id UUID;
-  v_token TEXT;
-  v_refresh_token TEXT;
 BEGIN
   -- 1. Primero creamos el usuario en auth.users
   -- Insertamos un nuevo usuario en auth.users
@@ -99,16 +95,19 @@ BEGIN
     p_club_member
   );
   
-  -- 3. Devolvemos el ID del usuario creado
+  -- 3. Devolvemos el ID del usuario y otros datos útiles sin generar token JWT
   RETURN jsonb_build_object(
     'user_id', v_user_id,
     'phone', p_phone,
-    'status', 'success'
+    'status', 'success',
+    'message', 'El usuario ha sido creado exitosamente. Utilice el cliente JS de Supabase para generar el token.'
   );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- Versión con rol específico
+DROP FUNCTION IF EXISTS public.create_user_with_phone_with_role(text, text, text, text, text, text, text, boolean, boolean);
+
 CREATE OR REPLACE FUNCTION public.create_user_with_phone_with_role(
   p_phone TEXT,
   p_identity_number TEXT,
@@ -122,8 +121,6 @@ CREATE OR REPLACE FUNCTION public.create_user_with_phone_with_role(
 ) RETURNS JSONB AS $$
 DECLARE
   v_user_id UUID;
-  v_token TEXT;
-  v_refresh_token TEXT;
 BEGIN
   -- Validar el rol
   IF p_role_name NOT IN ('client', 'trainer', 'admin', 'super_admin') THEN
@@ -208,22 +205,22 @@ BEGIN
     p_club_member
   );
   
-  -- 3. Devolvemos el ID del usuario creado
+  -- 3. Devolvemos el ID del usuario y otros datos útiles sin generar token JWT
   RETURN jsonb_build_object(
     'user_id', v_user_id,
     'phone', p_phone,
     'role', p_role_name,
-    'status', 'success'
+    'status', 'success',
+    'message', 'El usuario ha sido creado exitosamente. Utilice el cliente JS de Supabase para generar el token.'
   );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- Establecer permisos para la función
+-- Establecer permisos para las funciones
 GRANT EXECUTE ON FUNCTION public.create_user_with_phone(text, text, text, text, text, text, boolean, boolean) TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION public.create_user_with_phone_with_role(text, text, text, text, text, text, text, boolean, boolean) TO anon, authenticated;
 
--- Parte 2: Modificar la función para iniciar sesión con teléfono y cédula
--- -----------------------------------------------------------------
+-- Modificar la función create_session_for_phone para que no dependa de auth.sign
 DROP FUNCTION IF EXISTS public.create_session_for_phone(text, text);
 
 CREATE OR REPLACE FUNCTION public.create_session_for_phone(
@@ -232,12 +229,11 @@ CREATE OR REPLACE FUNCTION public.create_session_for_phone(
 ) RETURNS JSONB AS $$
 DECLARE
   v_user_id UUID;
-  v_token TEXT;
-  v_refresh_token TEXT;
   v_role TEXT;
+  v_status TEXT;
 BEGIN
   -- Buscar el usuario por teléfono y cédula en members
-  SELECT id::uuid, role_name INTO v_user_id, v_role
+  SELECT id::uuid, role_name, status INTO v_user_id, v_role, v_status
   FROM public.members
   WHERE phone = p_phone
   AND identity_number = p_identity_number;
@@ -251,19 +247,13 @@ BEGIN
     RAISE EXCEPTION 'El usuario existe en members pero no en auth.users. ID: %', v_user_id;
   END IF;
   
-  -- Generar identificadores simples para la sesión
-  -- NO intentamos usar auth.sign ya que causa errores
-  v_token := 'manual_' || gen_random_uuid()::text; 
-  v_refresh_token := 'refresh_' || gen_random_uuid()::text;
-  
-  -- Devolver el ID del usuario y tokens simples para la sesión manual
+  -- Retornar datos sin generar token JWT
   RETURN jsonb_build_object(
     'user_id', v_user_id,
     'phone', p_phone,
-    'token', v_token,
-    'refresh_token', v_refresh_token,
     'role', v_role,
-    'status', 'success'
+    'status', v_status,
+    'message', 'Autenticación exitosa. Utilice el cliente JS de Supabase para generar el token.'
   );
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
