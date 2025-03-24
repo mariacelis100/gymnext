@@ -1,3 +1,5 @@
+# Prueba del git
+
 # GymNext 🏋️‍♂️
 
 A modern, feature-rich gym management system built with Next.js and Material UI. GymNext helps gyms streamline their operations while providing an engaging experience for members and trainers.
