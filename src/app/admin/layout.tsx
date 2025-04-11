@@ -35,7 +35,7 @@ import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import LogoutIcon from '@mui/icons-material/Logout';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
-import { useAuth } from '@/core/auth/auth-context';
+import { useAuth } from '@/core/hooks/use-mock-auth';
 
 const drawerWidth = 240;
 

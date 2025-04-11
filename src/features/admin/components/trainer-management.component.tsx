@@ -48,6 +48,7 @@ import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import EditIcon from '@mui/icons-material/Edit';
 import CloseIcon from '@mui/icons-material/Close';
 import GroupIcon from '@mui/icons-material/Group';
+import { useRouter } from 'next/navigation';
 
 // Tipo para los clientes de entrenadores
 interface TrainerClient {
@@ -101,6 +102,7 @@ export default function TrainerManagement() {
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showClientsDialog, setShowClientsDialog] = useState(false);
   const theme = useTheme();
+  const router = useRouter();
   
   useEffect(() => {
     // En una implementación real, aquí se cargarían los datos desde la API
@@ -225,8 +227,7 @@ export default function TrainerManagement() {
   });
   
   const handleViewClients = (trainer: Trainer) => {
-    setSelectedTrainer(trainer);
-    setClientsDialogOpen(true);
+    router.push(`/dashboard/trainer-clients?trainerId=${trainer.id}`);
   };
   
   const handleAssignExercises = (trainer: Trainer) => {

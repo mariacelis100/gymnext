@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/core/auth/auth-context';
+import { useAuth } from '@/core/hooks/use-mock-auth';
 
 export default function LoginForm() {
   const [phone, setPhone] = useState('');

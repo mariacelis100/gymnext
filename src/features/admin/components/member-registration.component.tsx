@@ -20,7 +20,7 @@ import {
   Alert,
   CircularProgress
 } from '@mui/material';
-import { useAuth } from '@/core/auth/auth-context';
+import { useAuth } from '@/core/hooks/use-mock-auth';
 import { supabase } from '@/core/supabase/client';
 
 interface RegistrationFormData {

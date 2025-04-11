@@ -8,7 +8,7 @@ import CustomerManagement from '@/features/admin/components/customer-management.
 import TrainerManagement from '@/features/admin/components/trainer-management.component';
 import Dashboard from '@/features/admin/components/dashboard.component';
 import MemberRegistration from '@/features/admin/components/member-registration.component';
-import { useAuth } from '@/core/auth/auth-context';
+import { useAuth } from '@/core/hooks/use-mock-auth';
 
 export default function AdminDashboardPage() {
   const { user, loading } = useAuth();

@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation';
-import { useAuth } from '@/core/auth/auth-context';
+import { useAuth } from '@/core/hooks/use-mock-auth';
 
 export default function LogoutButton({ className = '' }: { className?: string }) {
   const { signOut, isLoading } = useAuth();

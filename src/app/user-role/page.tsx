@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '@/core/auth/auth-context';
+import { useAuth } from '@/core/hooks/use-mock-auth';
 import { Box, Typography, Container, Button, CircularProgress } from '@mui/material';
 import { useRouter } from 'next/navigation';
 

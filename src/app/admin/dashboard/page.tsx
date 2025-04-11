@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Box, Container, Paper, Typography, Tabs, Tab, useTheme } from '@mui/material';
-import { useAuth } from '@/core/auth/auth-context';
+import { useAuth } from '@/core/hooks/use-mock-auth';
 import { useRouter } from 'next/navigation';
 import AdminSidebar from '@/features/admin/components/admin-sidebar.component';
 import AdminHeader from '@/features/admin/components/admin-header.component';

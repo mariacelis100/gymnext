@@ -30,7 +30,7 @@ import {
   CheckCircle as CheckCircleIcon,
   Cancel as CancelIcon
 } from '@mui/icons-material';
-import SwipeableViews from 'react-swipeable-views';
+import { useSwipeable } from 'react-swipeable';
 
 // QR Code placeholder - reemplazar con componente real cuando esté disponible
 const QRCodePlaceholder = ({ value, size = 200 }: { value: string, size?: number }) => {
@@ -73,9 +73,9 @@ interface Exercise {
 const pastExercises: Exercise[] = [
   {
     id: 'past1',
-    name: 'Press de Banca',
-    description: 'Ejercicio para pecho',
-    image: '/images/exercises/bench-press.jpg',
+    name: 'Musculación',
+    description: 'Entrenamiento de fuerza y resistencia',
+    image: '/images/services/musculación_1.jpg',
     sets: 4,
     reps: 12,
     completed: true,
@@ -83,9 +83,9 @@ const pastExercises: Exercise[] = [
   },
   {
     id: 'past2',
-    name: 'Sentadillas',
-    description: 'Ejercicio para piernas',
-    image: '/images/exercises/squats.jpg',
+    name: 'Cardio',
+    description: 'Entrenamiento cardiovascular',
+    image: '/images/services/area_cardio.jpg',
     sets: 3,
     reps: 15,
     completed: false,
@@ -93,9 +93,9 @@ const pastExercises: Exercise[] = [
   },
   {
     id: 'past3',
-    name: 'Dominadas',
-    description: 'Ejercicio para espalda',
-    image: '/images/exercises/pull-ups.jpg',
+    name: 'Actividades Dirigidas',
+    description: 'Clases grupales de fitness',
+    image: '/images/services/actividades_dirigidas.jpg',
     sets: 3,
     reps: 10,
     completed: true,
@@ -106,18 +106,18 @@ const pastExercises: Exercise[] = [
 const todayExercises: Exercise[] = [
   {
     id: 'today1',
-    name: 'Press Militar',
-    description: 'Ejercicio para hombros',
-    image: '/images/exercises/military-press.jpg',
+    name: 'Musculación Avanzada',
+    description: 'Entrenamiento de fuerza avanzado',
+    image: '/images/services/musculación_2.jpg',
     sets: 4,
     reps: 10,
     date: '2023-03-21'
   },
   {
     id: 'today2',
-    name: 'Peso Muerto',
-    description: 'Ejercicio compuesto para espalda baja',
-    image: '/images/exercises/deadlift.jpg',
+    name: 'Entrenamiento en Grupo',
+    description: 'Sesión grupal de entrenamiento',
+    image: '/images/services/amigas_1.jpg',
     sets: 3,
     reps: 8,
     date: '2023-03-21'
@@ -127,18 +127,18 @@ const todayExercises: Exercise[] = [
 const futureExercises: Exercise[] = [
   {
     id: 'future1',
-    name: 'Curl de Bíceps',
-    description: 'Ejercicio para brazos',
-    image: '/images/exercises/bicep-curl.jpg',
+    name: 'Musculación Intensiva',
+    description: 'Sesión intensiva de musculación',
+    image: '/images/services/musculación_3.jpg',
     sets: 4,
     reps: 12,
     date: '2023-03-22'
   },
   {
     id: 'future2',
-    name: 'Extensiones de Tríceps',
-    description: 'Ejercicio para brazos',
-    image: '/images/exercises/tricep-extension.jpg',
+    name: 'Entrenamiento Grupal',
+    description: 'Sesión grupal de fitness',
+    image: '/images/services/amigas_2.jpg',
     sets: 3,
     reps: 15,
     date: '2023-03-23'
@@ -157,13 +157,23 @@ export default function ClientWelcome() {
   const [streak, setStreak] = useState(7);
   
   // Para manejar el swipe
-  const handleChangeIndex = (index: number) => {
-    setTabIndex(index);
-  };
-
   const handleTabChange = (_: React.SyntheticEvent, newValue: number) => {
     setTabIndex(newValue);
   };
+
+  const swipeHandlers = useSwipeable({
+    onSwipedLeft: () => {
+      if (tabIndex < 2) {
+        setTabIndex(tabIndex + 1);
+      }
+    },
+    onSwipedRight: () => {
+      if (tabIndex > 0) {
+        setTabIndex(tabIndex - 1);
+      }
+    },
+    trackMouse: true
+  });
   
   // Abrir diálogo de QR
   const handleOpenQrDialog = () => {
@@ -282,13 +292,8 @@ export default function ClientWelcome() {
       </Paper>
       
       {/* Vista swipeable de ejercicios */}
-      <SwipeableViews
-        index={tabIndex}
-        onChangeIndex={handleChangeIndex}
-        enableMouseEvents
-      >
-        {/* Ejercicios pasados */}
-        <Box>
+      <Box {...swipeHandlers}>
+        <Box sx={{ display: tabIndex === 0 ? 'block' : 'none' }}>
           <Typography variant="h6" sx={{ mb: 2 }}>
             Ejercicios de días anteriores
           </Typography>
@@ -342,9 +347,8 @@ export default function ClientWelcome() {
             </Card>
           ))}
         </Box>
-        
-        {/* Ejercicios de hoy */}
-        <Box>
+
+        <Box sx={{ display: tabIndex === 1 ? 'block' : 'none' }}>
           <Typography variant="h6" sx={{ mb: 2 }}>
             Ejercicios para hoy
           </Typography>
@@ -377,9 +381,8 @@ export default function ClientWelcome() {
             </Card>
           ))}
         </Box>
-        
-        {/* Ejercicios futuros */}
-        <Box>
+
+        <Box sx={{ display: tabIndex === 2 ? 'block' : 'none' }}>
           <Typography variant="h6" sx={{ mb: 2 }}>
             Próximos ejercicios
           </Typography>
@@ -415,7 +418,7 @@ export default function ClientWelcome() {
             </Card>
           ))}
         </Box>
-      </SwipeableViews>
+      </Box>
       
       {/* Diálogo para QR Code */}
       <Dialog 

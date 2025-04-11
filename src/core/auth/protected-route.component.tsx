@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useAuth } from './auth-context'
+import { useAuth } from '@/core/hooks/use-mock-auth'
 
 interface ProtectedRouteProps {
   children: React.ReactNode

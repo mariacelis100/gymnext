@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { Box, CircularProgress, Container, Typography } from '@mui/material';
 import Dashboard from '@/features/admin/components/dashboard.component';
-import { useAuth } from '@/core/auth/auth-context';
+import { useAuth } from '@/core/hooks/use-mock-auth';
 import { useRouter } from 'next/navigation';
 
 export default function AdminPage() {

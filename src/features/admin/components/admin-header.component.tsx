@@ -5,7 +5,7 @@ import { AppBar, Toolbar, IconButton, Typography, Box, Badge, Tooltip, Avatar, u
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
-import { useAuth } from '@/core/auth/auth-context';
+import { useAuth } from '@/core/hooks/use-mock-auth';
 import { useTheme as useAppTheme } from '@/core/theme/theme-context';
 
 export default function AdminHeader() {

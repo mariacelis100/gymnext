@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
-import { useAuth } from '@/core/auth/auth-context'
+import { useAuth } from '@/core/hooks/use-mock-auth'
 import { useRouter } from 'next/navigation'
 import { Box, Container } from '@mui/material'
 import ClientWelcome from '@/features/client/components/client-welcome.component'
